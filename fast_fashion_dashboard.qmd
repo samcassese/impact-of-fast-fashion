@@ -1,0 +1,316 @@
+---
+title: "Impact of fast fashion on our planet"
+author: "Sam Cassese, Kateryna Lohvinova, Michael Grimes"
+date: today
+format:
+  dashboard:
+    logo: https://velichor.co/wp-content/uploads/2024/03/earth-covered-in-clothes-1024x819.png
+    theme: minty
+    scrolling: true 
+---
+
+# Introduction
+
+**Introduction**
+
+Fast fashion has been a rapidly growing part of the overall clothing industry, achieved by increasing production speeds, lowering prices, and expediting trend cycles. However, this shift has raised ethical and environmental concerns. The fast fashion industry uses massive amounts of materials and water and emits significant carbon emissions. Our project aims to look into three questions: __How does environmental impact differ across fast fashion companies across different production years? How does company revenue relate to carbon emissions and overall environmental impact? Which materials contribute most to emissions and other material consumption?__
+
+To guide us in answering these questions, we joined two datasets from Kaggle. The first dataset, The True Cost of Fast Fashion Impact (https://www.kaggle.com/datasets/khushikyad001/the-true-cost-of-fast-fashion-impact ), includes brand-level environmental data such as carbon emissions, landfill waste, water usage, production volume, and sustainability scores. The second dataset, Plastic-Based Textiles in Clothing Industry (https://www.kaggle.com/datasets/purohitgaurav/plastic-based-textiles-in-clothing-industry ), includes data on greenhouse gas emissions, pollutants emitted, energy consumption, textile types, and sales revenue. By joining these datasets by company and year of production (2018–2022), we were also able to create new variables, such as emissions per revenue dollar, to better analyze environmental impact across brands and years.
+
+Our analysis aims to address the important issue of the environmental impact of fast fashion production, which is often difficult to find or hidden from the average consumer. By looking at energy consumption, water usage, and carbon emissions, we hope to make these environmental consequences more transparent and measurable. If these issues could be more widely understood, it could help influence conversations about sustainability, accountability for companies, and changes in policy.
+
+There are, however, some ethical questions and limitations to consider when using these datasets. Both were uploaded by individual Kaggle users without detailed documentation, which raises concerns regarding the transparency and reliability of the data. We don’t know if the data collection methods were consistent across brands, production years, and different countries. There are also issues of underrepresentation in certain regions. Since these datasets focus on company-level data, it doesn’t capture the impacts that are disproportionate to specific areas. Due to these limitations, our findings and analyses shouldn’t be viewed as definitive claims about the fast fashion industry as a whole.
+
+![Used clothes discarded in the Atacama Desert, in Alto Hospicio, Iquique, Chile. [Martin Bernetti/AFP], ](Pictures/Photos/Chile_Landfill.jpg){width=600} 
+
+
+
+**Data Context (Dataset 1)**
+
+
+**Data Source:**
+https://www.kaggle.com/datasets/khushikyad001/the-true-cost-of-fast-fashion-impact - Uploaded by Kaggle user Khushi Yadav. We believe that this user collected the data and created the dataset since there are no other collaborators listed.
+
+**Data Meaning:**
+This data separates fast fashion companies by brand, years of production, and countries of production, looking at data such as carbon emissions, landfill contribution, water usage, and release cycles. This information is relevant to our project because we're looking into fast fashion and its impacts on the environment, so these metrics will be helpful in our analysis.
+
+**Data Join:**
+We intend to keep all of the columns related to emissions, waste, resource usage and resource usage. We also intend to keep all of the "scores" assigned to companies, such as "Sustainability_Score" and "Env_Cost_Index". We may need to change the formatting of brand names in order to ensure our join is successful, as some have multiple words or "and" in the name, which can be typed as "&" as well.
+
+**Data Observations:**
+```{r}
+#| warning: false
+library(tidyverse)
+library(plotly)
+library(DT)
+df1 <- read.csv("true_cost_fast_fashion.csv")
+datatable(df1)
+```
+
+There are 25 columns and 3,000 rows/observations. As seen in the glimpse() above, there are columns such as Brand, Country, Year, Monthly_Production_Tonnes, Release_Cycles_Per_Year, along with some other columns that don't have much relation to what we're looking for, such as Instagram_Mentions_Thousands, Working_Hours_Per_Week, and Child_Labor_Incidents.
+
+**Data Issues:**
+While there are no missing/NA values in this dataset, there are some other possible issues with the data. The "scores" assigned to companies are unclear and not defined in a specific way in any of the documentation we could find. While the names of these columns can give us some insight into what they take into consideration, there's still a lot of guessing involved when it comes to specifics. Overall, they can still be helpful metrics in trying to get a broad idea of a company's sustainability, policy-compliance, ethics, etc.
+
+**Data Context (Dataset 2)**
+
+
+**Data Source:**
+https://www.kaggle.com/datasets/purohitgaurav/plastic-based-textiles-in-clothing-industry - Uploaded by Kaggle user Purohit Gaurav. We believe that this user collected the data and created the dataset since there are no other collaborators listed. Nowhere is it listed that this is a synthetic dataset, as it explicilty says it can be research, analysis, and even policy formulation.
+
+**Data Meaning:**
+This data separates fast fashion companies by brand, years of production, and textiles used, looking at data such as greenhouse gas emissions, pollutants emitted, water and energy consumption, and waste generation. This information is relevant to our project because we're able to add more datapoints to support our analysis of fast fashion's environmental impact, as things such as greenhouse gas emissions and energy/water consumption are directly related to this. This can support the evidence that we've already found in our first dataset.
+
+**Data Join:**
+We intend to keep all of the columns related to emissions, waste, and resource usage. However, we don't want to join columns that are already in our first dataset, so we don't have to join water consumption. We may need to change the formatting of brand names in order to ensure our join is successful, as some have multiple words or "and" in the name, which can be typed as "&" as well. We also need to change the names of some of the columns, because they represent the same thing but have differing names in each dataset (for example, Production_Year vs. Year, Company vs. Brand).
+
+**Data Observations:**
+```{r}
+#| warning: false
+library(tidyverse)
+df2 <- read.csv("Plastic_based_Textiles_in_clothing_industry.csv")
+datatable(df2)
+```
+
+There are 9 columns and 6,956 rows/observations. As seen in the glimpse() above, there are columns such as Company, Product_Type, Production_Year, Pollutants_Emitted, Energy_Consumption, and Waste_Generation. While Sales_Revenue doesn't directly rate to environmental impact and sustainability, we decided to keep it because we felt it might be valuable in our later analyses.
+
+**Data Issues: **
+Just like our first dataset, there are no missing/NA values in this one. there are some other possible issues with the data. One of the issues with this dataset is that the year ranges differ (2015-24 vs. 2018-2022) so we will have to ensure that only years that both datasets have (2018-22) are included in our joined dataframe. We also have textiles in this dataset, while the first dataset doesn't. This presents some challenges as we choose whether or not we want to include it in the joined dataframe, and how exactly we want to go about including it. There's also a lack of units included in the csv file, which could cause issues, however, since we are comparing the units to themselves, this shouldn't pose a huge problem.
+
+![A dump near Ghana's capital, one of may of which have had to close due to being too full. [Muntaka Chasant/Rex/Shutterstock], ](Pictures/Photos/Ghana.png){width=600} 
+
+# Data Join
+
+**Joined Dataset** 
+```{r}
+#| warning: false
+
+library(tidyverse)
+
+true_cost_df <- read.csv("true_cost_fast_fashion.csv")
+textiles_df <- read.csv("Plastic_based_Textiles_in_clothing_industry.csv")
+
+
+true_cost_df <- 
+  rename (
+    true_cost_df,
+    Company = Brand,
+    Production_Year = Year
+  )
+
+
+true_cost_df <- true_cost_df |>
+  filter(Company == "Forever 21" | Company == "Zara")
+
+textiles_df <- textiles_df |>
+  filter(Company == "Forever 21" | Company == "Zara")
+
+
+true_cost_clean <- true_cost_df |>
+  group_by(Company, Production_Year) |>
+  summarize(
+    Monthly_Production_Tonnes = sum(Monthly_Production_Tonnes, na.rm = TRUE),
+    Release_Cycles_Per_Year = sum(Release_Cycles_Per_Year, na.rm = TRUE),
+    Carbon_Emissions_tCO2e = sum(Carbon_Emissions_tCO2e, na.rm = TRUE),
+    Water_Usage_Million_Litres = sum(Water_Usage_Million_Litres, na.rm = TRUE),
+    Landfill_Waste_Tonnes = sum(Landfill_Waste_Tonnes, na.rm = TRUE),
+    Sentiment_Score = mean(Sentiment_Score, na.rm = TRUE),
+    GDP_Contribution_Million_USD = sum(GDP_Contribution_Million_USD, na.rm = TRUE),
+    Sustainability_Score = mean(Sustainability_Score, na.rm = TRUE),
+    Env_Cost_Index = mean(Env_Cost_Index, na.rm = TRUE),
+    Transparency_Index = mean(Transparency_Index, na.rm = TRUE),
+    Compliance_Score = mean(Compliance_Score, na.rm = TRUE),
+    Ethical_Rating = mean(Ethical_Rating, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+true_cost_clean <- true_cost_clean |>
+  filter(Production_Year >= 2018 & Production_Year <= 2022)
+
+
+textiles_clean <- textiles_df |>
+  group_by(Company, Production_Year, Product_Type) |>
+  summarize(
+    Greenhouse_Gas_Emissions = sum(Greenhouse_Gas_Emissions, na.rm = TRUE),
+    Pollutants_Emitted = sum(Pollutants_Emitted, na.rm = TRUE),
+    Energy_Consumption = sum(Energy_Consumption, na.rm = TRUE),
+    Sales_Revenue = sum(Sales_Revenue, na.rm = TRUE),
+    .groups = "drop"
+  ) 
+
+
+merged_df <- inner_join(
+  true_cost_clean,
+  textiles_clean,
+  by = c("Company", "Production_Year")
+)
+
+datatable(merged_df)
+```
+
+
+**Data Documentation**
+
+For this project, we used two datasets from Kaggle: *The True Cost of Fast Fashion Impact* and *Plastic-Based Textiles in Clothing Industry*. The first dataset includes brand-level data by year, with variables like Carbon_Emissions_tCO2e, Water_Usage_Million_Litres, Landfill_Waste_Tonnes, Monthly_Production_Tonnes, and Release_Cycles_Per_Year. These are the main variables we used because they directly reflect environmental impact and production behavior across brands. The second dataset includes Production_Year, Energy_Consumption, Greenhouse_Gas_Emissions, Water_Consumption, Waste_Generation, and Sales Revenue, which we summarized by year to understand broader textile industry impacts.
+
+One issue with both datasets is transparency. Since they were uploaded to Kaggle by individual users, we do not know exactly how the data was collected, what sources were used, or how accurate the measurements are. There is no detailed methodology or official codebook that explains how the numbers were calculated. That makes it harder to evaluate reliability and explainability, which connect directly to the human rights principles discussed in the paper, especially transparency, accountability, and professional responsibility.
+
+There are also fairness concerns. We do not know whether all brands or regions are equally represented, or if certain companies disclose more information than others. Since the data is further sectioned by country in the first dataset, the differences in regulation for disclosure of a lot of these metrics are something to take into consideration. It may be easier in some countries of production for manufacturers to mislead or underreport certain numbers or events. Some brands may produce more clothing in a certain country than other brands, which can impact the collection of data. If the data is incomplete or uneven, that could bias our analysis. Additionally, the datasets do not include information about specific communities affected by pollution, which limits how well the data reflects broader human impacts. Because of these limitations, our findings should be interpreted as descriptive patterns within the datasets, not definitive conclusions about the entire fast fashion industry.
+
+# Question 1
+
+```{r}
+merged_df <-
+  merged_df |>
+  mutate(Emission_per_Revenue = 
+           Greenhouse_Gas_Emissions / Sales_Revenue)
+
+avr_em_rev <- 
+  merged_df |>
+  pull(Emission_per_Revenue) |>
+  mean(round(3))
+
+```
+
+**Question 1: How has the sustainability of fast fashion companies changed over the past few years?**
+
+We also added a new numerical column called: **Emission_per_Revenue**. This column is useful because it measures how much pollution a company produces for each dollar it earns. The average value for that colunm is **$`r avr_em_rev`** per tonne of greenhouse emmision.
+
+ A summary dataframe based on our joined data. This dataset is useful because it summarizes environmental impact across two companies as well as revenue. 
+
+```{r}
+summary_df <- 
+  merged_df |>
+  group_by(Company) |>
+  summarize(
+    Avg_Sustainability = mean(Sustainability_Score, na.rm = TRUE),
+    Avg_Emissions = mean(Greenhouse_Gas_Emissions, na.rm = TRUE),
+    Avg_Energy_Consumption = mean (Energy_Consumption, na.rm = TRUE),
+    Avg_Emission_per_Revenue = mean(Emission_per_Revenue, na.rm = TRUE),
+    Avg_Revenue = mean(Sales_Revenue, na.rm = TRUE)
+  )
+datatable(summary_df)
+```
+
+
+
+**Sustainability over time. **
+This graph is useful because it shows how each company’s sustainability score changes across years, making it easy to identify improvements or declines over time.
+
+```{r}
+#| fig.alt: "Line graph showing sustanability score trends overt time for Zara and Forever21"
+
+trends <- ggplot(merged_df,
+       aes( 
+         x = Production_Year,
+         y = Sustainability_Score,
+         color = Company,
+         group = Company)) +
+  geom_line (linewidth = 1.2) +
+  theme_minimal() +
+  labs(
+    title = "Sustainability trends over time",
+    x = "Production Year",
+    y = "Sustainability Score"
+  )
+
+ggplotly(trends)
+```
+
+# Question 2
+
+**Question 2: How does the material and producer of fast fashion clothing impact pollution levels?**
+
+**Pollution emitted by the material and the company.**
+This graph is useful because it compares how much pollution each company emits for different materials, highlighting which fabrics have the highest environmental impact. It helps identify specific materials that contribute most to pollution.
+
+```{r}
+company_emm <- ggplot(merged_df,
+       aes( 
+         x = Product_Type,
+         y = Pollutants_Emitted,
+         fill = Company)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Pollution emitted by material and company",
+    x = "Material",
+    y = "Pollutants emitted") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+ggplotly(company_emm)
+```
+
+# Question 3
+
+**Question 3: How do greenhouse gas emissions relate to sales revenue, and how does material impact that?**
+
+**The relation of greenhoue gas emmision and sales revenue generated per fabric material.**
+This graph is useful because it clearly shows the relationship between greenhouse gas emissions and sales revenue for each material, making it easy to compare their environmental impact and financial performance at the same time. It also helps identify which materials generate high revenue with lower emissions, supporting better sustainability
+
+```{r}
+material_info <- ggplot(merged_df,
+       aes( 
+         x = Greenhouse_Gas_Emissions,
+         y = Sales_Revenue,
+         color = Product_Type)) +
+  geom_point(size = 3) +
+  labs(
+    title = "Greenhouse Gas Emissions vs Sales Revenue per Material",
+    x = "Greenhouse Gas Emissions",
+    y = "Sales Revenue") +
+  theme_minimal()
+
+ggplotly(material_info)
+
+correlation_emissions_revenue <- round(
+  cor(
+    merged_df$Greenhouse_Gas_Emissions,
+    merged_df$Sales_Revenue,
+    use = "complete.obs"
+  ),
+  3
+)
+```
+
+We also calculated the correlation coefficient as our novel tool. The correlation coefficient between greenhouse gas emissions and sales revenue is `r correlation_emissions_revenue`. This gives us a clearer idea of how strongly those two variables are related, beyond just viewing the scatterplot and making visual observations.
+
+
+# Conclusion
+
+From our analysis, one of the main takeaways is that the environmental impact of fast fashion changes depending on the materials being used. In the visualization comparing pollutants emitted by material and company, some fabrics clearly produced more pollution than others. This shows that the type of material being used in clothing production plays a large role in environmental damage. If companies want to reduce their environmental impact, changing the materials they rely on could make a noticeable difference.
+
+Another takeaway from our analysis is the relationship between greenhouse gas emissions and revenue. The graph comparing emissions and sales revenue shows that higher revenue does not necessarily mean production is more environmentally efficient. Some materials produce high emissions even when the revenue generated from them is not especially high. This suggests that economic success in fast fashion does not always line up with environmental sustainability. Looking at the sustainability score trends over time also shows that company performance can change from year to year, which means sustainability practices are not fixed and can improve or decline depending on decisions companies make.
+
+There are also some limitations to our analysis that are important to acknowledge. Both datasets were uploaded by individual Kaggle users and do not include detailed documentation explaining how the data was collected. Because of that, it is possible that some values are inconsistent or not measured in the same way across companies or countries. Our analysis also focuses only on two companies and a limited number of production years, which means the results may not represent the entire fast fashion industry. In the future, it would be useful to include more companies, more years of production data, and more detailed environmental measurements so we could better understand the overall environmental impact of fast fashion on a larger scale.
+
+# About Us
+
+**General Information**
+
+(Section BA, Tuesdays 12:30 - 1:20 - Yashita Tanwar) Our main topic of interest is fast fashion and its impact on the environment.
+
+Sam Cassese
+(Geography: Data Science, samcas@uw.edu)
+I am interested in this topic because I took a Fashion Merchandising class in high school that emphasized sustainability, and I did a project on a similar topic to this one. I'm also friends with a clothing brand owner, and tried to start one myself, so I have some knowledge of the ethics and environmental impacts of manufacturing clothing.
+
+![Photo of Sam Cassese](Pictures/About Us/Sam.png){width=150} 
+
+Kateryna Lohvinova
+(Informatics: Data Science, kater31@uw.edu)
+I am interested in this topic because I work in fast fashion retail and see the industry from the inside, which has made me more aware of its environmental impact and motivated me to care about sustainability and the planet.
+
+![Photo of Kateryna Lohvinova](Pictures/About Us/Kateryna.jpg){width=150} 
+
+Michael Grimes
+(Informatics: Data Science, mtgrms13@uw.edu)
+I am interested in examining how fast fashion production patterns connect to environmental sustainability and long-term structural impact. As a U.S. Navy veteran and current Informatics student, I am interested in the intersection of data, accountability, and systems-level analysis, especially in areas like cybersecurity, intelligence, and environmental data ethics.
+
+![Photo of Michael Grimes](Pictures/About Us/Michael.jpg){width=150} 
+
+**Coding Notes**
+
+- ChatGPT (chatgpt.com)
+We asked ChatGPT if the way we were joining our datasets was ideal, or if there was another way we should be going about it. We also used it to help us explain the ideas it gave to one another in the group. It was also used to help us debug our code and figure out why things weren't working the way we intended.
+
+- Google (google.com)
+We googled things such as error messages and syntax questions (example: how to inner_join in R) and used the Google AI Overview to assist us in solving these problems.
